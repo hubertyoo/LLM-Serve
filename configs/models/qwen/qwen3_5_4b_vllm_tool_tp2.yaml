@@ -1,0 +1,18 @@
+runtime: vllm
+model_name: qwen3.5-4b-tp2
+model_path: Qwen/Qwen3.5-4B
+
+server:
+  host: 0.0.0.0
+  port: 8001
+
+env:
+  CUDA_VISIBLE_DEVICES: "1,2"
+  NCCL_CUMEM_HOST_ENABLE: "0"
+
+runtime_args:
+  tensor_parallel_size: 2
+  max_model_len: 262144
+  reasoning_parser: qwen3
+  enable_auto_tool_choice: true
+  tool_call_parser: qwen3_coder

@@ -1,0 +1,17 @@
+runtime: sglang
+model_name: qwen3.5-4b-tp2
+model_path: Qwen/Qwen3.5-4B
+
+server:
+  host: 0.0.0.0
+  port: 8000
+
+env:
+  CUDA_VISIBLE_DEVICES: "0,1"
+
+runtime_args:
+  tp_size: 2
+  mem_fraction_static: 0.9
+  context_length: 262144
+  reasoning_parser: qwen3
+  tool_call_parser: qwen3_coder
