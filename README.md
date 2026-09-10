@@ -1,30 +1,30 @@
 # LLM Serve
 
-一个通用的 `vLLM` / `SGLang` 启动仓库：
+A general-purpose launcher for `vLLM` and `SGLang`:
 
-- 每个模型实例用一个 YAML 配置文件描述
-- YAML 中声明 runtime 是 `vllm` 还是 `sglang`
-- 统一通过 Python launcher 启动、记录日志、记录 pid/state
-- 提供按 `model_name` 精准停止的 bash 脚本，不会把所有服务一起杀掉
+- Define each model instance in a YAML configuration file.
+- Specify either `vllm` or `sglang` as the runtime in the YAML file.
+- Use a single Python launcher to start services, write logs, and track process IDs and state.
+- Stop a specific model by `model_name` using a Bash script without stopping other services.
 
-## 安装
+## Installation
 
 ```bash
 cd /home/jys3649/projects/LLM-Serve
 python3 -m pip install -e .
 ```
 
-如果你更习惯 `uv`：
+If you prefer `uv`:
 
 ```bash
 cd /home/jys3649/projects/LLM-Serve
 uv pip install -e .
 ```
 
-## 配置格式
+## Configuration Format
 
 ```yaml
-runtime: vllm        # 或 sglang
+runtime: vllm        # or sglang
 model_name: qwen3.5-4b
 model_path: Qwen/Qwen3.5-4B
 
@@ -43,76 +43,76 @@ runtime_args:
   tool_call_parser: qwen3_coder
 ```
 
-规则：
+Configuration rules:
 
-- `server.port` 和 `server.host` 会自动映射成对应启动参数
-- `runtime_args` 会自动从 `snake_case` 转成 CLI flag，例如 `max_model_len -> --max-model-len`
-- 布尔值 `true` 会转成纯开关，例如 `enable_auto_tool_choice -> --enable-auto-tool-choice`
-- `model_name` 用来做日志目录、运行态索引、以及按模型名停止
+- `server.port` and `server.host` are automatically mapped to the corresponding launch arguments.
+- Keys in `runtime_args` are automatically converted from `snake_case` to CLI flags, for example, `max_model_len -> --max-model-len`.
+- Boolean values set to `true` become standalone flags, for example, `enable_auto_tool_choice -> --enable-auto-tool-choice`.
+- `model_name` is used to organize log directories, index runtime state, and stop services by model name.
 
-## 已提供的样例
+## Included Examples
 
 - `configs/models/qwen/qwen3_5_4b_vllm_tool.yaml`
 - `configs/models/qwen/qwen3_5_4b_sglang_tool.yaml`
 
-这两个配置都参考了你给的官方 `Qwen3.5-4B` tool-call 启动方式，没有加 MTP。
+Both configurations follow the official `Qwen3.5-4B` tool-calling launch examples, with MTP disabled.
 
-## 启动
+## Starting a Service
 
 ```bash
 ./scripts/start_model.sh configs/models/qwen/qwen3_5_4b_vllm_tool.yaml
 ```
 
-或者：
+Alternatively:
 
 ```bash
 python3 -m llm_serve.launcher start configs/models/qwen/qwen3_5_4b_sglang_tool.yaml
 ```
 
-启动后会：
+The launcher will:
 
-- 把服务放到后台运行
-- 把日志写到 `logs/<model_name>/...log`
-- 把运行态信息写到 `run/instances/*.json`
+- Run the service in the background.
+- Write logs to `logs/<model_name>/...log`.
+- Write runtime state to `run/instances/*.json`.
 
-## 停止
+## Stopping a Service
 
-按模型名停止：
+Stop a service by model name:
 
 ```bash
 ./scripts/stop_model.sh qwen3.5-4b
 ```
 
-或者：
+Alternatively:
 
 ```bash
 python3 -m llm_serve.launcher stop qwen3.5-4b
 ```
 
-这会只停止 `model_name: qwen3.5-4b` 对应的进程组，不影响其他模型服务。
+This stops only the process group associated with `model_name: qwen3.5-4b`, leaving other model services running.
 
-## 查看运行中的服务
+## Listing Running Services
 
 ```bash
 python3 -m llm_serve.launcher list
 ```
 
-## 仅渲染启动命令
+## Rendering the Launch Command
 
 ```bash
 python3 -m llm_serve.launcher render-command configs/models/qwen/qwen3_5_4b_vllm_tool.yaml
 ```
 
-## 日志和状态文件
+## Logs and State Files
 
-- 日志目录：`logs/`
-- 运行态目录：`run/instances/`
+- Log directory: `logs/`
+- Runtime state directory: `run/instances/`
 
-状态文件中会记录：
+Each state file records:
 
 - `pid`
 - `model_name`
 - `runtime`
 - `config_path`
 - `log_path`
-- 实际启动命令
+- The actual launch command

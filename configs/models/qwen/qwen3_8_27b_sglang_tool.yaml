@@ -1,0 +1,30 @@
+# Adapted from the H200 BF16 / no-speculation / low-latency / BF16-SSM recipe:
+# https://docs.sglang.io/cookbook/autoregressive/Qwen/Qwen3.8-27B
+runtime: sglang
+model_name: qwen3.8-27b
+model_path: Qwen/Qwen3.8-27B
+
+server:
+  host: 127.0.0.1
+  port: 8000
+
+env:
+  CUDA_VISIBLE_DEVICES: "0"
+  HF_HUB_OFFLINE: "1"
+  SGLANG_RUST_BUILD_MODE: "never"
+
+runtime_args:
+  served_model_name: qwen3.8-27b
+  tp_size: 1
+  dtype: bfloat16
+  kv_cache_dtype: fp8_e4m3
+  mem_fraction_static: 0.9
+  attention_backend: flashinfer
+  chunked_prefill_size: 8192
+  max_prefill_tokens: 8192
+  mamba_ssm_dtype: bfloat16
+  mamba_radix_cache_strategy: extra_buffer
+  mamba_full_memory_ratio: 2.34
+  context_length: 65536
+  reasoning_parser: qwen3
+  tool_call_parser: qwen3_coder

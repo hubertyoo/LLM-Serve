@@ -1,0 +1,27 @@
+# Official H100 BF16 recipe:
+# https://recipes.vllm.ai/Qwen/Qwen3.8-27B?hardware=h100
+runtime: vllm
+model_name: qwen3.8-27b-vllm
+model_path: Qwen/Qwen3.8-27B
+
+server:
+  host: 127.0.0.1
+  port: 8000
+
+env:
+  CUDA_VISIBLE_DEVICES: "0"
+  HF_HUB_OFFLINE: "1"
+  OMP_NUM_THREADS: "4"
+  MAX_JOBS: "4"
+  CMAKE_BUILD_PARALLEL_LEVEL: "4"
+
+runtime_args:
+  served_model_name: qwen3.8-27b
+  tensor_parallel_size: 1
+  dtype: bfloat16
+  enable_auto_tool_choice: true
+  tool_call_parser: qwen3_coder
+  reasoning_parser: qwen3
+  mm_encoder_tp_mode: data
+  max_model_len: 65536
+  gpu_memory_utilization: 0.90
